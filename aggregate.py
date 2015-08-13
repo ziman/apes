@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
             i = int(row.get('Proximity', row.get('Interaction')))
             try:
-                x, y = row['Pair'].replace('Mr ', 'Mr').split()
+                x, y = row['Pair'].replace('Mr ', 'Mr.').split()
             except ValueError as e:
                 print(row['Pair'])
                 raise e
