@@ -10,7 +10,7 @@ def aggregate(items):
     result = collections.defaultdict(int)
     for item in items:
         result[(item.x, item.y)] += item.i
-    return [Item(x,y,i) for (x,y),i in result.items()]
+    return sorted(Item(x,y,i) for (x,y),i in result.items())
 
 def write_output(fname, items):
     with open(fname, 'w') as f:
