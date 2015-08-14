@@ -10,7 +10,7 @@ IMIN, IMAX = 0.5, 5.0
 Item = collections.namedtuple('Item', 'x y i')
 Group = collections.namedtuple('Group', 'loc items')
 
-LOC = {'in': 'in', 'out': 'out', 'in/out': None}
+LOC = {'in': 'in', 'out': 'out', 'outout': 'out', 'ou': 'out', 'pop': 'out', 'in/out': None}
 
 def flatten(groups):
     return [i for g in groups for i in g.items]
@@ -27,6 +27,10 @@ def scale(items, imin, imax):
 
     smin = min(it.i for it in items)
     smax = max(it.i for it in items)
+
+    if smin == smax:
+        smax = smin + 1  # map everything to lower bound
+
     return [
         Item(it.x, it.y, imin + (imax - imin) * (it.i - smin) / (smax - smin))
         for it in items
@@ -62,26 +66,9 @@ def load_csv(fname):
             if not row['Pair'].strip():
                 continue
 
-            i = int(row.get('Proximity', row.get('Interaction')))
-            if i == 0:
-                continue  # skip zeroes
-
-            try:
-                x, y = map(str.strip, row['Pair'].replace('Mr ', 'Mr.').split())
-            except ValueError as e:
-                print(row['Pair'])
-                raise e
-
-            if x > y:
-                x, y = y, x
-
-            items.append(Item(x=x, y=y, i=i))
-
-            cur_loc = LOC[row.get('Location', row.get('Position'))]
-            loc[x] = cur_loc
-            loc[y] = cur_loc
-
+            # create a new group if necessary
             cur_ts = row['Date'] + row['Time']
+            # print('cur_ts = %s, last_ts = %s' % (cur_ts, last_ts))
             if last_ts is None:
                 last_ts = cur_ts
             elif cur_ts != last_ts:
@@ -90,6 +77,27 @@ def load_csv(fname):
                 last_ts = cur_ts
             else:
                 pass # nothing to do
+
+            interaction = int(row.get('Proximity', row.get('Interaction')))
+
+            try:
+                x, y = map(str.strip, row['Pair'].replace('Mr ', 'Mr.').split())
+            except ValueError as e:
+                print(row['Pair'])
+                raise e
+
+            cur_loc = LOC[row.get('Location', row.get('Position'))]
+            # print('x = %s, cur_loc = %s' % (x, cur_loc))
+            loc[x] = cur_loc
+
+            if interaction != 0:
+                if x > y:
+                    x, y = y, x
+
+                items.append(Item(x=x, y=y, i=interaction))
+
+    if items:
+        groups.append(Group(loc=loc, items=items))
 
     return groups
 
@@ -129,7 +137,8 @@ if __name__ == '__main__':
     dominant = sys.argv[2]
 
     groups = load_csv(root + '.csv')
+    # print(groups)
 
     write_output(root + '-all.csv', flatten(groups))
-    write_output(root + '-dom-present.csv', flatten(prune(dominant, groups, present=True)))
-    write_output(root + '-dom-absent.csv', flatten(prune(dominant, groups, present=False)))
+    write_output(root + '-present.csv', flatten(prune(dominant, groups, present=True)))
+    write_output(root + '-absent.csv', flatten(prune(dominant, groups, present=False)))
