@@ -103,6 +103,7 @@ def load_csv(fname):
 
 def prune(dominant, groups, present):
     skipped = 0
+    saved = 0
     pruned_groups = []
     for group in groups:
         pruned_items = []
@@ -120,6 +121,8 @@ def prune(dominant, groups, present):
                 print('skipping interaction %s-%s' % (item.x, item.y))
                 skipped += 1
                 continue
+            else:
+                saved += 1
 
             if (int_loc == dom_loc) == present:
                 pruned_items.append(item)
@@ -127,8 +130,7 @@ def prune(dominant, groups, present):
         if pruned_items:
             pruned_groups.append(Group(loc=group.loc, items=pruned_items))
 
-    if skipped:
-        print('--> total items skipped: %d' % skipped)
+    print('--> total interactions saved: %d (after skipping %d)' % (saved, skipped))
 
     return pruned_groups
 
