@@ -1,0 +1,10 @@
+Date,Time,Location,Interaction,Pair
+x,0,out,1,C E
+x,0,out,1,C E
+x,0,in,1,A B
+x,0,in,1,A B
+x,0,in,0,D A
+x,1,in,1,A B
+x,1,out,0,D A
+x,1,out,1,C E
+x,1,out,1,C E
