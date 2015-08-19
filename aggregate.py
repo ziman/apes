@@ -88,7 +88,11 @@ def load_csv(fname):
 
             cur_loc = LOC[row.get('Location', row.get('Position'))]
             # print('x = %s, cur_loc = %s' % (x, cur_loc))
-            loc[x] = cur_loc
+            if x in loc:
+                if loc[x] != cur_loc:
+                    raise Exception('%s: bad location' % str(row))
+            else:
+                loc[x] = cur_loc
 
             if interaction != 0:
                 if x > y:
